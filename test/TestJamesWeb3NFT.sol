@@ -22,6 +22,8 @@ contract TestJamesWeb3NFT is Test {
         vm.startPrank(DEFAULT_EOA, DEFAULT_EOA);
         SAMPLE_TOKEN_ID = JAMES_WEB3_NFT.mint("Sigrid Jin");
         JAMES_WEB3_NFT.approve(address(JAMES_WEB3_NFT_WRAPPER), SAMPLE_TOKEN_ID);
+        // client 여기까지
+
         console.log("SAMPLE_TOKEN_ID :: ", SAMPLE_TOKEN_ID);
 
         JAMES_WEB3_NFT_WRAPPER.deposit(SAMPLE_TOKEN_ID);
@@ -31,8 +33,7 @@ contract TestJamesWeb3NFT is Test {
     }
 
     function testAddAllNFTWrapperImplFunctionSelectorsAndCall() public {
-        // verify data
         assertEq(JAMES_WEB3_NFT_WRAPPER.ownerOf(SAMPLE_TOKEN_ID), DEFAULT_EOA);
-        console.log(JAMES_WEB3_NFT.ownerOf(SAMPLE_TOKEN_ID));
+        assertEq(JAMES_WEB3_NFT.ownerOf(SAMPLE_TOKEN_ID), address(TEST_NFT_WRAPPER_FACET_ADDR));
     }
 }

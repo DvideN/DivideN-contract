@@ -1,6 +1,8 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.0;
 
+import "./lock_nft/ERC721ToERC4610WrapperImpl.sol";
+
 contract DivideNInstallment {
     struct InstallmentObject {
         bool isNFTLocked;
@@ -20,6 +22,7 @@ contract DivideNInstallment {
     mapping(uint256 => InstallmentObject) installmentIdToInstallmentObject; // installment ID => InstallmentObject
     mapping(address => InstallmentObject[]) sellerToInstallmentObjectList; // seller => InstallmentObject[]
     mapping(address => InstallmentObject[]) buyerToInstallmentObjectList; // buyer => InstallmentObject[]
+    ERC721ToERC4610WrapperImpl ERC721_WRAPPER;
 
     function registerInstallment(
         address _seller,
@@ -28,8 +31,11 @@ contract DivideNInstallment {
         uint256 _priceInMatic,
         uint256 _collateralRatio,
         uint256 _installmentMonths
-    ) internal returns (bool) {
+    ) public returns (bool) {
         // Installment Object Creation
+        ERC721_WRAPPER = new ERC721ToERC4610WrapperImpl(address(_ERC721address), "WRAPPER", "WRAP");
+        ERC721_WRAPPER.deposit(_ERC721Id);
+
         InstallmentObject memory newInstallmentObject = InstallmentObject({
             isNFTLocked: false,
             seller: _seller,
