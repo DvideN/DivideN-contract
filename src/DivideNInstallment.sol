@@ -76,7 +76,7 @@ contract DivideNInstallment {
     function startInstallment(uint256 _installmentId) public returns (bool) {
         address _buyer = msg.sender;
         InstallmentObject
-            memory installmentObject = installmentIdToInstallmentObject[
+            storage installmentObject = installmentIdToInstallmentObject[
                 _installmentId
             ];
         require(installmentObject.buyer == address(0)); // buyer must not be designated yet.
@@ -97,9 +97,9 @@ contract DivideNInstallment {
                 _installmentId
             ];
 
-//        require(
-//            installmentObject.installmentStatus == Status.StartedInstallment
-//        );
+        require(
+            installmentObject.installmentStatus == Status.StartedInstallment
+        );
 
         console.log("SUCCEEED", succeeded);
 
@@ -119,16 +119,28 @@ contract DivideNInstallment {
             installmentIdToStatus[_installmentId] = Status
                 .EndedInstallmentFailed; // Status update
             installmentObject.isNFTLocked = false;
-            _endInstallmentWithFailure(installmentObject.ERC721Id, installmentObject.ERC721address, installmentObject.seller);
+            _endInstallmentWithFailure(
+                installmentObject.ERC721Id,
+                installmentObject.ERC721address,
+                installmentObject.seller
+            );
             return true;
         }
     }
 
-    function _endInstallmentWithSuccess(uint256 tokenId, address erc721Addr, address buyerAddr) private {
+    function _endInstallmentWithSuccess(
+        uint256 tokenId,
+        address erc721Addr,
+        address buyerAddr
+    ) private {
         ERC721_WRAPPER.withdraw(tokenId, buyerAddr, erc721Addr);
     }
 
-    function _endInstallmentWithFailure(uint256 tokenId, address erc721Addr, address originalSellerAddr) private {
+    function _endInstallmentWithFailure(
+        uint256 tokenId,
+        address erc721Addr,
+        address originalSellerAddr
+    ) private {
         ERC721_WRAPPER.withdraw(tokenId, originalSellerAddr, erc721Addr);
     }
 
