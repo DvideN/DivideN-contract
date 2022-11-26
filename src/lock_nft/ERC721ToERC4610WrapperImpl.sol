@@ -13,8 +13,7 @@ contract ERC721ToERC4610WrapperImpl is ERC4610, IWrapper, IERC721Receiver {
 
     address internal _underlyingToken;
 
-    constructor(address underlyingToken_, string memory name_, string memory symbol_) ERC4610(name_,symbol_) {
-        _underlyingToken = underlyingToken_;
+    constructor(string memory name_, string memory symbol_) ERC4610(name_,symbol_) {
     }
 
     function onERC721Received(
@@ -26,11 +25,7 @@ contract ERC721ToERC4610WrapperImpl is ERC4610, IWrapper, IERC721Receiver {
         return this.onERC721Received.selector;
     }
 
-    function underlyingToken() public view virtual returns (address) {
-        return _underlyingToken;
-    }
-
-    function deposit(uint256 tokenId) public virtual override {
+    function deposit(uint256 tokenId, address _underlyingToken) public virtual override {
         address owner = IERC721(_underlyingToken).ownerOf(tokenId);
         require(_msgSender() == owner, "only owner can call");
         console.log("DEPOSIT", _msgSender(), address(this));
@@ -46,7 +41,7 @@ contract ERC721ToERC4610WrapperImpl is ERC4610, IWrapper, IERC721Receiver {
         emit Deposit(_msgSender(), tokenId);
     }
 
-    function withdraw(uint256 tokenId) public override virtual {
+    function withdraw(uint256 tokenId, address _underlyingToken) public override virtual {
         address owner = IERC721(_underlyingToken).ownerOf(tokenId);
         require(_msgSender() == ownerOf(tokenId), "only owner can call");
         require(address(this) == owner, "invalid tokenId");
@@ -57,8 +52,12 @@ contract ERC721ToERC4610WrapperImpl is ERC4610, IWrapper, IERC721Receiver {
         emit Withdraw(_msgSender(), tokenId);
     }
 
-    function tokenURI(uint256 tokenId) public view override virtual returns (string memory) {
+    function tokenURI(uint256 tokenId, address _underlyingToken) public view virtual returns (string memory) {
         return ERC721(_underlyingToken).tokenURI(tokenId);
+    }
+
+    function ownerOf(uint256 tokenId, address _underlyingToken) public view virtual returns (address) {
+        return ERC721(_underlyingToken).ownerOf(tokenId);
     }
 
 }

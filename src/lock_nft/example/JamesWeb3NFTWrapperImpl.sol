@@ -13,7 +13,7 @@ import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
  */
 contract JamesWeb3NFTWrapperImpl is ERC721ToERC4610WrapperImpl {
 
-    constructor(address underlyingToken_, string memory name_, string memory symbol_) ERC721ToERC4610WrapperImpl(underlyingToken_,name_,symbol_) {
+    constructor(string memory name_, string memory symbol_) ERC721ToERC4610WrapperImpl(name_,symbol_) {
     }
 
     // add READ function to get ratity property value from AToken

@@ -33,8 +33,8 @@ contract DivideNInstallment {
         uint256 _installmentMonths
     ) public returns (bool) {
         // Installment Object Creation
-        ERC721_WRAPPER = new ERC721ToERC4610WrapperImpl(address(_ERC721address), "WRAPPER", "WRAP");
-        ERC721_WRAPPER.deposit(_ERC721Id);
+        ERC721_WRAPPER = new ERC721ToERC4610WrapperImpl("WRAPPER", "WRAP");
+        ERC721_WRAPPER.deposit(_ERC721Id, _ERC721address);
 
         InstallmentObject memory newInstallmentObject = InstallmentObject({
             isNFTLocked: false,
