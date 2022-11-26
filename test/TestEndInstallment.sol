@@ -20,6 +20,7 @@ contract TestEndInstallment is Test {
     ERC721ToERC4610WrapperImpl ERC721_WRAPPER;
     address ERC721ToERC4610WrapperImpl_ADDR;
     uint256 INSTALLMENT_ID;
+    address BUYER_EOA;
 
     function setUp() public {
         console.log("HEY READ ME~");

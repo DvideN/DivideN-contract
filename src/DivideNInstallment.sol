@@ -111,7 +111,11 @@ contract DivideNInstallment {
                 .EndedInstallmentSucceeded; // Status update
             // TODO: ERC721 NFT lock을 해제해주기
             installmentObject.isNFTLocked = false;
-            _endInstallmentWithSuccess();
+            _endInstallmentWithSuccess(
+                installmentObject.ERC721Id,
+                installmentObject.ERC721address,
+                installmentObject.buyer
+            );
             return true;
         } else {
             console.log("WHEN FALSE");
