@@ -43,9 +43,19 @@ contract TestEndInstallment is Test {
         ERC721ToERC4610WrapperImpl_ADDR = address(ERC721_WRAPPER);
 
         // approve
-        JAMES_WEB3_NFT.approve(ERC721ToERC4610WrapperImpl_ADDR, SAMPLE_TOKEN_ID);
+        JAMES_WEB3_NFT.approve(
+            ERC721ToERC4610WrapperImpl_ADDR,
+            SAMPLE_TOKEN_ID
+        );
 
-        uint256 installmentId = DIVIDEN.registerInstallment(ERC721_ADDR, ERC721_ID, PRICE_IN_MATIC, COLLATERAL_RATIO_BP, INSTALLMENT_MONTHS, ERC721ToERC4610WrapperImpl_ADDR);
+        uint256 installmentId = DIVIDEN.registerInstallment(
+            ERC721_ADDR,
+            ERC721_ID,
+            PRICE_IN_MATIC,
+            COLLATERAL_RATIO_BP,
+            INSTALLMENT_MONTHS,
+            ERC721ToERC4610WrapperImpl_ADDR
+        );
         // installmentId zero
         assertEq(installmentId, 1);
         INSTALLMENT_ID = installmentId;
@@ -64,7 +74,10 @@ contract TestEndInstallment is Test {
 
         // then
         console.log("result :: ", result);
-        console.log("JAMES_WEB3_NFT.ownerOf(SAMPLE_TOKEN_ID) :: ", JAMES_WEB3_NFT.ownerOf(SAMPLE_TOKEN_ID));
+        console.log(
+            "JAMES_WEB3_NFT.ownerOf(SAMPLE_TOKEN_ID) :: ",
+            JAMES_WEB3_NFT.ownerOf(SAMPLE_TOKEN_ID)
+        );
         assertEq(result, true);
 
         // verify whether original ERC721 NFT has been transferred to the original seller
@@ -86,7 +99,10 @@ contract TestEndInstallment is Test {
 
         // then
         console.log("result :: ", result);
-        console.log("JAMES_WEB3_NFT.ownerOf(SAMPLE_TOKEN_ID) :: ", JAMES_WEB3_NFT.ownerOf(SAMPLE_TOKEN_ID));
+        console.log(
+            "JAMES_WEB3_NFT.ownerOf(SAMPLE_TOKEN_ID) :: ",
+            JAMES_WEB3_NFT.ownerOf(SAMPLE_TOKEN_ID)
+        );
         assertEq(result, true);
 
         // verify whether original ERC721 NFT has been transferred to the original seller
