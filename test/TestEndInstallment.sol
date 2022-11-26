@@ -25,6 +25,7 @@ contract TestEndInstallment is Test {
         console.log("HEY READ ME~");
         JAMES_WEB3_NFT = new JamesWeb3NFT("JAMES WEB3", "JW3");
         DEFAULT_EOA = address(0xDeFa);
+        BUYER_EOA = address(0xFaDe);
         vm.startPrank(DEFAULT_EOA, DEFAULT_EOA);
 
         SAMPLE_TOKEN_ID = JAMES_WEB3_NFT.mint("Sigrid Jin");
@@ -51,6 +52,28 @@ contract TestEndInstallment is Test {
         vm.stopPrank();
     }
 
+    function testStartInstallmentWithSuccess() public {
+        // given
+        console.log("INSTALLMENT_ID :: ", INSTALLMENT_ID);
+        vm.startPrank(DEFAULT_EOA, DEFAULT_EOA);
+        // startInstallment
+        DIVIDEN.startInstallment(INSTALLMENT_ID);
+
+        // when
+        bool result = DIVIDEN.endInstallment(INSTALLMENT_ID, true);
+
+        // then
+        console.log("result :: ", result);
+        console.log("JAMES_WEB3_NFT.ownerOf(SAMPLE_TOKEN_ID) :: ", JAMES_WEB3_NFT.ownerOf(SAMPLE_TOKEN_ID));
+        assertEq(result, true);
+
+        // verify whether original ERC721 NFT has been transferred to the original seller
+        assertEq(JAMES_WEB3_NFT.ownerOf(SAMPLE_TOKEN_ID), SELLER);
+
+        // finally
+        vm.stopPrank();
+    }
+
     function testEndInstallmentWithFailure() public {
         // given
         console.log("INSTALLMENT_ID :: ", INSTALLMENT_ID);
@@ -58,7 +81,7 @@ contract TestEndInstallment is Test {
         // startInstallment
         DIVIDEN.startInstallment(INSTALLMENT_ID);
 
-        // when : 실행 안되는데?
+        // when
         bool result = DIVIDEN.endInstallment(INSTALLMENT_ID, false);
 
         // then

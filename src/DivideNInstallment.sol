@@ -124,12 +124,11 @@ contract DivideNInstallment {
         }
     }
 
-    function _endInstallmentWithSuccess() private {
-        // TODO: NFT를 buyer에게 보내주고, 종료
+    function _endInstallmentWithSuccess(uint256 tokenId, address erc721Addr, address buyerAddr) private {
+        ERC721_WRAPPER.withdraw(tokenId, buyerAddr, erc721Addr);
     }
 
     function _endInstallmentWithFailure(uint256 tokenId, address erc721Addr, address originalSellerAddr) private {
-        // TODO: NFT를 seller에게 보내주고, 종료
         ERC721_WRAPPER.withdraw(tokenId, originalSellerAddr, erc721Addr);
     }
 
