@@ -55,9 +55,9 @@ contract DivideNInstallment {
     }
 
     function beginInstallment(
-        address _buyer,
         uint256 _installmentId
     ) internal returns (bool) {
+        address _buyer = msg.sender;
         InstallmentObject
             memory installmentObject = installmentIdToInstallmentObject[
                 _installmentId
