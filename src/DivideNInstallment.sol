@@ -40,7 +40,7 @@ contract DivideNInstallment {
         uint256 _collateralRatio,
         uint256 _installmentMonths,
         address _ERC721WrapperAddr
-    ) public returns (bool) {
+    ) public returns (uint256) {
         uint256 installmentId = latestInstallmentId;
 
         // Installment Object Creation
@@ -70,7 +70,7 @@ contract DivideNInstallment {
 
         latestInstallmentId++; // global state update (incrementation)
 
-        return true;
+        return installmentId;
     }
 
     function startInstallment(uint256 _installmentId) public returns (bool) {
