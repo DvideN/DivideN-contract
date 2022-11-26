@@ -34,14 +34,13 @@ contract DivideNInstallment {
     mapping(uint256 => Status) installmentIdToStatus; // status별 Installment Object 조회 용도
 
     function registerInstallment(
-        address _seller,
         address _ERC721address,
         uint256 _ERC721Id,
         uint256 _priceInMatic,
         uint256 _collateralRatio,
         uint256 _installmentMonths,
         address _ERC721WrapperAddr
-    ) public returns (bool) {
+    ) public returns (uint256) {
         uint256 installmentId = latestInstallmentId;
 
         // Installment Object Creation
@@ -50,7 +49,7 @@ contract DivideNInstallment {
 
         InstallmentObject memory newInstallmentObject = InstallmentObject({
             isNFTLocked: false,
-            seller: _seller,
+            seller: msg.sender,
             buyer: address(0),
             ERC721address: _ERC721address,
             installmentId: installmentId,
@@ -71,10 +70,10 @@ contract DivideNInstallment {
 
         latestInstallmentId++; // global state update (incrementation)
 
-        return true;
+        return installmentId;
     }
 
-    function startInstallment(uint256 _installmentId) internal returns (bool) {
+    function startInstallment(uint256 _installmentId) public returns (bool) {
         address _buyer = msg.sender;
         InstallmentObject
             memory installmentObject = installmentIdToInstallmentObject[
@@ -92,7 +91,7 @@ contract DivideNInstallment {
     function endInstallment(
         uint256 _installmentId,
         bool succeeded
-    ) internal returns (bool) {
+    ) public returns (bool) {
         InstallmentObject
             memory installmentObject = installmentIdToInstallmentObject[
                 _installmentId
