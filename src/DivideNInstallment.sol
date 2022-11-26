@@ -64,7 +64,7 @@ contract DivideNInstallment {
         installmentIdToInstallmentObject[
             latestInstallmentId
         ] = newInstallmentObject;
-        sellerToInstallmentObjectList[_seller].push(newInstallmentObject);
+        sellerToInstallmentObjectList[msg.sender].push(newInstallmentObject);
 
         installmentIdToStatus[installmentId] = Status.Registered; // Status update
 
