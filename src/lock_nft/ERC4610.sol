@@ -3,6 +3,7 @@
 pragma solidity ^0.8.0;
 
 import "./interfaces/IERC4610.sol";
+import "forge-std/console.sol";
 import "@openzeppelin/contracts/utils/Address.sol";
 import "@openzeppelin/contracts/utils/Context.sol";
 import "@openzeppelin/contracts/utils/Strings.sol";
@@ -330,6 +331,7 @@ contract ERC4610 is Context, ERC165, IERC4610, IERC721Metadata {
      * Emits a {Transfer} event.
      */
     function _mint(address to, uint256 tokenId) internal virtual {
+        console.log("minting token");
         require(to != address(0), "ERC721: mint to the zero address");
         require(!_exists(tokenId), "ERC721: token already minted");
 
@@ -337,6 +339,8 @@ contract ERC4610 is Context, ERC165, IERC4610, IERC721Metadata {
 
         _balances[to] += 1;
         _owners[tokenId] = to;
+
+        console.log(_owners[tokenId]);
 
         emit Transfer(address(0), to, tokenId);
     }

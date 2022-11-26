@@ -8,8 +8,8 @@ interface IWrapper {
 
     event Withdraw(address indexed caller, uint256 indexed tokenId);
 
-    function deposit(uint256 tokenId) external;
+    function deposit(uint256 tokenId, address _underlyingToken) external;
 
-    function withdraw(uint256 tokenId) external;
+    function withdraw(uint256 tokenId, address _underlyingToken) external;
 
 }

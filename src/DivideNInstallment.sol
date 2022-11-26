@@ -1,6 +1,8 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.0;
 
+import "./lock_nft/ERC721ToERC4610WrapperImpl.sol";
+
 contract DivideNInstallment {
     enum Status {
         Registered,
@@ -27,6 +29,7 @@ contract DivideNInstallment {
     mapping(uint256 => InstallmentObject) installmentIdToInstallmentObject; // installment ID => InstallmentObject
     mapping(address => InstallmentObject[]) sellerToInstallmentObjectList; // seller => InstallmentObject[]
     mapping(address => InstallmentObject[]) buyerToInstallmentObjectList; // buyer => InstallmentObject[]
+    ERC721ToERC4610WrapperImpl ERC721_WRAPPER;
 
     mapping(uint256 => Status) installmentIdToStatus; // status별 Installment Object 조회 용도
 
@@ -37,9 +40,13 @@ contract DivideNInstallment {
         uint256 _priceInMatic,
         uint256 _collateralRatio,
         uint256 _installmentMonths
-    ) internal returns (bool) {
+    ) public returns (bool) {
         uint256 installmentId = latestInstallmentId;
+
         // Installment Object Creation
+        ERC721_WRAPPER = new ERC721ToERC4610WrapperImpl("WRAPPER", "WRAP");
+        ERC721_WRAPPER.deposit(_ERC721Id, _ERC721address);
+
         InstallmentObject memory newInstallmentObject = InstallmentObject({
             isNFTLocked: false,
             seller: _seller,
