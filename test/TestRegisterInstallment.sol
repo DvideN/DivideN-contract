@@ -44,8 +44,9 @@ contract TestRegisterInstallment is Test {
     }
 
     function testRegisterInstallment() public {
-        bool result = DIVIDEN.registerInstallment(SELLER, ERC721_ADDR, ERC721_ID, PRICE_IN_MATIC, COLLATERAL_RATIO_BP, INSTALLMENT_MONTHS, ERC721ToERC4610WrapperImpl_ADDR);
-        assertEq(result, true);
+        uint256 installmentId = DIVIDEN.registerInstallment(ERC721_ADDR, ERC721_ID, PRICE_IN_MATIC, COLLATERAL_RATIO_BP, INSTALLMENT_MONTHS, ERC721ToERC4610WrapperImpl_ADDR);
+        // assert installmentId is zero
+        assertEq(installmentId, 1);
         vm.stopPrank();
     }
 }

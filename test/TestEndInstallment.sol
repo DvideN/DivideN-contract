@@ -5,7 +5,7 @@ import "forge-std/console.sol";
 import "../src/DivideNInstallment.sol";
 import "../src/lock_nft/example/JamesWeb3NFT.sol";
 
-contract TestRegisterInstallment is Test {
+contract TestEndInstallment is Test {
     uint256 SAMPLE_TOKEN_ID;
     JamesWeb3NFT JAMES_WEB3_NFT;
     address DEFAULT_EOA;
@@ -19,8 +19,10 @@ contract TestRegisterInstallment is Test {
     uint256 INSTALLMENT_MONTHS;
     ERC721ToERC4610WrapperImpl ERC721_WRAPPER;
     address ERC721ToERC4610WrapperImpl_ADDR;
+    uint256 INSTALLMENT_ID;
 
     function setUp() public {
+        console.log("HEY READ ME~");
         JAMES_WEB3_NFT = new JamesWeb3NFT("JAMES WEB3", "JW3");
         DEFAULT_EOA = address(0xDeFa);
         vm.startPrank(DEFAULT_EOA, DEFAULT_EOA);
@@ -42,14 +44,29 @@ contract TestRegisterInstallment is Test {
         // approve
         JAMES_WEB3_NFT.approve(ERC721ToERC4610WrapperImpl_ADDR, SAMPLE_TOKEN_ID);
 
-        bool result = DIVIDEN.registerInstallment(SELLER, ERC721_ADDR, ERC721_ID, PRICE_IN_MATIC, COLLATERAL_RATIO_BP, INSTALLMENT_MONTHS, ERC721ToERC4610WrapperImpl_ADDR);
-        assertEq(result, true);
+        uint256 installmentId = DIVIDEN.registerInstallment(ERC721_ADDR, ERC721_ID, PRICE_IN_MATIC, COLLATERAL_RATIO_BP, INSTALLMENT_MONTHS, ERC721ToERC4610WrapperImpl_ADDR);
+        // installmentId zero
+        assertEq(installmentId, 1);
+        INSTALLMENT_ID = installmentId;
         vm.stopPrank();
     }
 
-    function TestEndInstallmentWithFailure() public {
-        bool result = DIVIDEN.endInstallment(SELLER, ERC721_ADDR, ERC721_ID);
-        assertEq(result, false);
+    function testEndInstallmentWithFailure() public {
+        // given
+        console.log("INSTALLMENT_ID :: ", INSTALLMENT_ID);
+        vm.startPrank(DEFAULT_EOA, DEFAULT_EOA);
+
+        // when
+        bool result = DIVIDEN.endInstallment(INSTALLMENT_ID, false);
+
+        // then
+        console.log("result :: ", result);
+        console.log("JAMES_WEB3_NFT.ownerOf(SAMPLE_TOKEN_ID) :: ", JAMES_WEB3_NFT.ownerOf(SAMPLE_TOKEN_ID));
+
+        // verify whether original ERC721 NFT has been transferred to the original seller
+        assertEq(JAMES_WEB3_NFT.ownerOf(SAMPLE_TOKEN_ID), SELLER);
+
+        // finally
         vm.stopPrank();
     }
 }
