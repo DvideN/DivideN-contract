@@ -27,7 +27,6 @@ contract ERC721ToERC4610WrapperImpl is ERC4610, IWrapper, IERC721Receiver {
 
     function deposit(uint256 tokenId, address _underlyingToken) public virtual override {
         address owner = IERC721(_underlyingToken).ownerOf(tokenId);
-        require(_msgSender() == owner, "only owner can call");
         console.log("DEPOSIT", _msgSender(), address(this));
 
         // delegatecall safeTransferFrom
@@ -35,7 +34,7 @@ contract ERC721ToERC4610WrapperImpl is ERC4610, IWrapper, IERC721Receiver {
 //        bytes4 sig = bytes4(keccak256(bytes("safeTransferFrom(address,address,uint256)")));
 //        (bool success, bytes memory data) = _underlyingToken.call(abi.encodeWithSelector(sig, owner, address(this), tokenId));
 //        console.log("IS SUCCESSFUL ?", success);
-        ERC721(_underlyingToken).safeTransferFrom(_msgSender(), address(this), tokenId);
+        ERC721(_underlyingToken).safeTransferFrom(owner, address(this), tokenId);
         _mint(_msgSender(), tokenId);
 
         emit Deposit(_msgSender(), tokenId);

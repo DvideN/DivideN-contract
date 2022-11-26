@@ -30,10 +30,11 @@ contract DivideNInstallment {
         uint256 _ERC721Id,
         uint256 _priceInMatic,
         uint256 _collateralRatio,
-        uint256 _installmentMonths
+        uint256 _installmentMonths,
+        address _ERC721WrapperAddr
     ) public returns (bool) {
         // Installment Object Creation
-        ERC721_WRAPPER = new ERC721ToERC4610WrapperImpl("WRAPPER", "WRAP");
+        ERC721_WRAPPER = ERC721ToERC4610WrapperImpl(_ERC721WrapperAddr);
         ERC721_WRAPPER.deposit(_ERC721Id, _ERC721address);
 
         InstallmentObject memory newInstallmentObject = InstallmentObject({
