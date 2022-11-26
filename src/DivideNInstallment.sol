@@ -47,7 +47,7 @@ contract DivideNInstallment {
         ERC721_WRAPPER = ERC721ToERC4610WrapperImpl(_ERC721WrapperAddr);
         ERC721_WRAPPER.deposit(_ERC721Id, _ERC721address);
 
-        InstallmentObject storage newInstallmentObject = InstallmentObject({
+        InstallmentObject memory newInstallmentObject = InstallmentObject({
             isNFTLocked: false,
             seller: msg.sender,
             buyer: address(0),
