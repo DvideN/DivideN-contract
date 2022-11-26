@@ -96,11 +96,15 @@ contract DivideNInstallment {
             memory installmentObject = installmentIdToInstallmentObject[
                 _installmentId
             ];
-        require(
-            installmentObject.installmentStatus == Status.StartedInstallment
-        );
+
+//        require(
+//            installmentObject.installmentStatus == Status.StartedInstallment
+//        );
+
+        console.log("SUCCEEED", succeeded);
 
         if (succeeded == true) {
+            console.log("WHEN TRUE");
             installmentObject.installmentStatus = Status
                 .EndedInstallmentSucceeded;
             installmentIdToStatus[_installmentId] = Status
@@ -110,11 +114,12 @@ contract DivideNInstallment {
             _endInstallmentWithSuccess();
             return true;
         } else {
+            console.log("WHEN FALSE");
             installmentObject.installmentStatus = Status.EndedInstallmentFailed;
             installmentIdToStatus[_installmentId] = Status
                 .EndedInstallmentFailed; // Status update
             installmentObject.isNFTLocked = false;
-            _endInstallmentWithFailure();
+            _endInstallmentWithFailure(installmentObject.ERC721Id, installmentObject.ERC721address, installmentObject.seller);
             return true;
         }
     }
@@ -123,8 +128,9 @@ contract DivideNInstallment {
         // TODO: NFT를 buyer에게 보내주고, 종료
     }
 
-    function _endInstallmentWithFailure() private {
+    function _endInstallmentWithFailure(uint256 tokenId, address erc721Addr, address originalSellerAddr) private {
         // TODO: NFT를 seller에게 보내주고, 종료
+        ERC721_WRAPPER.withdraw(tokenId, originalSellerAddr, erc721Addr);
     }
 
     function getBuyableInstallments()

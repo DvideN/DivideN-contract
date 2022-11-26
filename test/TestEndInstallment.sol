@@ -55,13 +55,16 @@ contract TestEndInstallment is Test {
         // given
         console.log("INSTALLMENT_ID :: ", INSTALLMENT_ID);
         vm.startPrank(DEFAULT_EOA, DEFAULT_EOA);
+        // startInstallment
+        DIVIDEN.startInstallment(INSTALLMENT_ID);
 
-        // when
+        // when : 실행 안되는데?
         bool result = DIVIDEN.endInstallment(INSTALLMENT_ID, false);
 
         // then
         console.log("result :: ", result);
         console.log("JAMES_WEB3_NFT.ownerOf(SAMPLE_TOKEN_ID) :: ", JAMES_WEB3_NFT.ownerOf(SAMPLE_TOKEN_ID));
+        assertEq(result, true);
 
         // verify whether original ERC721 NFT has been transferred to the original seller
         assertEq(JAMES_WEB3_NFT.ownerOf(SAMPLE_TOKEN_ID), SELLER);

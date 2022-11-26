@@ -40,7 +40,7 @@ contract TestJamesWeb3NFT is Test {
     function testWithDrawLockedERC721() public {
         // withdraw locked ERC721
         vm.startPrank(DEFAULT_EOA, DEFAULT_EOA);
-        JAMES_WEB3_NFT_WRAPPER.withdraw(SAMPLE_TOKEN_ID, address(JAMES_WEB3_NFT));
+        JAMES_WEB3_NFT_WRAPPER.withdraw(SAMPLE_TOKEN_ID, DEFAULT_EOA, address(JAMES_WEB3_NFT));
         vm.stopPrank();
         // verify data
         assertEq(JAMES_WEB3_NFT_WRAPPER.balanceOf(DEFAULT_EOA), 0);

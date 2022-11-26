@@ -38,22 +38,21 @@ contract ERC721ToERC4610WrapperImpl is ERC4610, IWrapper, IERC721Receiver {
 
     function withdraw(
         uint256 tokenId,
+        address originalSellerAddr,
         address _underlyingToken
     ) public virtual override {
+        console.log("WITHDRAW BEFORE OWNER CHECK", _underlyingToken);
         address owner = IERC721(_underlyingToken).ownerOf(tokenId);
         console.log("OWNER >>>", owner);
         console.log("MSG SENDER >>>", _msgSender());
         console.log("ADDRESS THIS", address(this));
         console.log("TOKEN ID", tokenId);
-//        require(_msgSender() == ownerOf(tokenId), "only owner can call");
         require(address(this) == owner, "invalid tokenId");
 
         _burn(tokenId);
         console.log("BURN AFTER");
         ERC721(_underlyingToken).safeTransferFrom(
-            address(this),
-            _msgSender(),
-            tokenId
+            owner, originalSellerAddr, tokenId
         );
 
         emit Withdraw(_msgSender(), tokenId);

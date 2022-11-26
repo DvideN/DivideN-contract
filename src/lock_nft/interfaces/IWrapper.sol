@@ -10,6 +10,6 @@ interface IWrapper {
 
     function deposit(uint256 tokenId, address _underlyingToken) external;
 
-    function withdraw(uint256 tokenId, address _underlyingToken) external;
+    function withdraw(uint256 tokenId, address _underlyingToken, address originalSellerAddr) external;
 
 }
