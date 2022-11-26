@@ -14,19 +14,21 @@ contract DivideNInstallment {
         address seller;
         address buyer;
         address ERC721address;
-        uint256 installmentId; // TODO: needs global state variable for +1 incrementation
+        uint256 installmentId;
         uint256 ERC721Id;
-        uint256 priceInMatic; // x1000
-        Status installmentStatus; // TODO: ENUM
-        uint256 collateralRatio; // x1000
+        uint256 priceInMatic; // in wei
+        Status installmentStatus;
+        uint256 collateralRatio; // in bp (1/10000)
         uint256 installmentMonths;
         uint256 minimalCollateral; // (optional): priceInMatic * collateralRatio
     }
 
-    uint256 latestInstallmentId;
+    uint256 latestInstallmentId = 1;
     mapping(uint256 => InstallmentObject) installmentIdToInstallmentObject; // installment ID => InstallmentObject
     mapping(address => InstallmentObject[]) sellerToInstallmentObjectList; // seller => InstallmentObject[]
     mapping(address => InstallmentObject[]) buyerToInstallmentObjectList; // buyer => InstallmentObject[]
+
+    mapping(uint256 => Status) installmentIdToStatus; // status별 Installment Object 조회 용도
 
     function registerInstallment(
         address _seller,
@@ -36,13 +38,14 @@ contract DivideNInstallment {
         uint256 _collateralRatio,
         uint256 _installmentMonths
     ) internal returns (bool) {
+        uint256 installmentId = latestInstallmentId;
         // Installment Object Creation
         InstallmentObject memory newInstallmentObject = InstallmentObject({
             isNFTLocked: false,
             seller: _seller,
             buyer: address(0),
             ERC721address: _ERC721address,
-            installmentId: latestInstallmentId,
+            installmentId: installmentId,
             ERC721Id: _ERC721Id,
             priceInMatic: _priceInMatic,
             installmentStatus: Status.Registered,
@@ -56,7 +59,9 @@ contract DivideNInstallment {
         ] = newInstallmentObject;
         sellerToInstallmentObjectList[_seller].push(newInstallmentObject);
 
-        latestInstallmentId++; // global state update
+        installmentIdToStatus[installmentId] = Status.Registered; // Status update
+
+        latestInstallmentId++; // global state update (incrementation)
 
         return true;
     }
@@ -70,7 +75,8 @@ contract DivideNInstallment {
         require(installmentObject.buyer == address(0)); // buyer must not be designated yet.
         // TODO: 보증금 전송 (buyer to seller)
         installmentObject.buyer = _buyer;
-        installmentObject.installmentStatus = Status.StartedInstallment; // TODO: ENUM
+        installmentObject.installmentStatus = Status.StartedInstallment;
+        installmentIdToStatus[_installmentId] = Status.StartedInstallment; // Status update
         installmentObject.isNFTLocked = true;
         return true;
     }
@@ -85,17 +91,21 @@ contract DivideNInstallment {
             ];
         require(
             installmentObject.installmentStatus == Status.StartedInstallment
-        ); // TODO: ENUM
+        );
 
         if (succeeded == true) {
             installmentObject.installmentStatus = Status
                 .EndedInstallmentSucceeded;
+            installmentIdToStatus[_installmentId] = Status
+                .EndedInstallmentSucceeded; // Status update
             // TODO: ERC721 NFT lock을 해제해주기
             installmentObject.isNFTLocked = false;
             _endInstallmentWithSuccess();
             return true;
         } else {
             installmentObject.installmentStatus = Status.EndedInstallmentFailed;
+            installmentIdToStatus[_installmentId] = Status
+                .EndedInstallmentFailed; // Status update
             installmentObject.isNFTLocked = false;
             _endInstallmentWithFailure();
             return true;
@@ -110,12 +120,90 @@ contract DivideNInstallment {
         // TODO: NFT를 seller에게 보내주고, 종료
     }
 
-    // 특정 계정이 보유한 ERC721 리스트 => front에서 하기
-    // 사람들이 판매 중인 NFT의 전체 리스트 (구매 가능 상태)
-    // 내 꺼 중 결제가 진행 중인 애들 리스트
-    // 1) 내가 사고 있는 애들 getter
-    // 2) 내가 팔고 있는 애들 getter
-    // 리스트에서 뭘 보여줘야 되냐면: 총 기간, 남은 기간, 월별 결제액, 초기 계약금, 할부 거래 Tx 주소 => front에서 하면 될거같은데?
+    function getBuyableInstallments()
+        public
+        view
+        returns (InstallmentObject[] memory)
+    {
+        InstallmentObject[] memory returnData = new InstallmentObject[](
+            latestInstallmentId
+        );
+
+        uint256 counter = 0;
+
+        for (uint i = 1; i <= latestInstallmentId; i++) {
+            if (installmentIdToStatus[i] == Status.Registered) {
+                returnData[counter] = installmentIdToInstallmentObject[i];
+                counter++;
+            }
+        }
+
+        return returnData;
+    }
+
+    function getBuyingInstallmentsInProgress()
+        public
+        view
+        returns (InstallmentObject[] memory)
+    {
+        InstallmentObject[]
+            memory sendersInstallments = buyerToInstallmentObjectList[
+                msg.sender
+            ]; // msg.sender가 buyer인 할부계약 리스트
+        uint256 sendersInstallmentsMaxLength = sendersInstallments.length;
+
+        InstallmentObject[] memory returnData = new InstallmentObject[](
+            sendersInstallmentsMaxLength
+        );
+
+        uint256 counter = 0;
+
+        // msg.sender가 buyer이고 status가 Start인 것들
+
+        for (uint i = 0; i < sendersInstallmentsMaxLength; i++) {
+            // index of the array
+            if (
+                sendersInstallments[i].installmentStatus ==
+                Status.StartedInstallment
+            ) {
+                returnData[counter] = sendersInstallments[i];
+                counter++;
+            }
+        }
+        return returnData;
+    }
+
+    function getSellingInstallmentsInProgress()
+        public
+        view
+        returns (InstallmentObject[] memory)
+    {
+        InstallmentObject[]
+            memory sendersInstallments = sellerToInstallmentObjectList[
+                msg.sender
+            ]; // msg.sender가 buyer인 할부계약 리스트
+        uint256 sendersInstallmentsMaxLength = sendersInstallments.length;
+
+        InstallmentObject[] memory returnData = new InstallmentObject[](
+            sendersInstallmentsMaxLength
+        );
+
+        uint256 counter = 0;
+
+        // msg.sender가 seller이고 status가 Start인 것들
+
+        for (uint i = 0; i < sendersInstallmentsMaxLength; i++) {
+            // index of the array
+            if (
+                sendersInstallments[i].installmentStatus ==
+                Status.StartedInstallment
+            ) {
+                returnData[counter] = sendersInstallments[i];
+                counter++;
+            }
+        }
+        return returnData;
+    }
 
     event InstallmentRegistered();
     event BeginInstallment();
