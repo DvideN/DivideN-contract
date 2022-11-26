@@ -2,6 +2,13 @@
 pragma solidity ^0.8.0;
 
 contract DivideNInstallment {
+    enum Status {
+        Registered,
+        StartedInstallment,
+        EndedInstallmentSucceeded,
+        EndedInstallmentFailed
+    }
+
     struct InstallmentObject {
         bool isNFTLocked;
         address seller;
@@ -10,7 +17,7 @@ contract DivideNInstallment {
         uint256 installmentId; // TODO: needs global state variable for +1 incrementation
         uint256 ERC721Id;
         uint256 priceInMatic; // x1000
-        uint256 installmentStatus; // TODO: ENUM
+        Status installmentStatus; // TODO: ENUM
         uint256 collateralRatio; // x1000
         uint256 installmentMonths;
         uint256 minimalCollateral; // (optional): priceInMatic * collateralRatio
@@ -38,7 +45,7 @@ contract DivideNInstallment {
             installmentId: latestInstallmentId,
             ERC721Id: _ERC721Id,
             priceInMatic: _priceInMatic,
-            installmentStatus: 0,
+            installmentStatus: Status.Registered,
             collateralRatio: _collateralRatio,
             installmentMonths: _installmentMonths,
             minimalCollateral: _priceInMatic * _collateralRatio
@@ -54,9 +61,7 @@ contract DivideNInstallment {
         return true;
     }
 
-    function beginInstallment(
-        uint256 _installmentId
-    ) internal returns (bool) {
+    function startInstallment(uint256 _installmentId) internal returns (bool) {
         address _buyer = msg.sender;
         InstallmentObject
             memory installmentObject = installmentIdToInstallmentObject[
@@ -65,7 +70,7 @@ contract DivideNInstallment {
         require(installmentObject.buyer == address(0)); // buyer must not be designated yet.
         // TODO: 보증금 전송 (buyer to seller)
         installmentObject.buyer = _buyer;
-        installmentObject.installmentStatus = 1; // TODO: ENUM
+        installmentObject.installmentStatus = Status.StartedInstallment; // TODO: ENUM
         installmentObject.isNFTLocked = true;
         return true;
     }
@@ -78,16 +83,19 @@ contract DivideNInstallment {
             memory installmentObject = installmentIdToInstallmentObject[
                 _installmentId
             ];
-        require(installmentObject.installmentStatus == 1); // TODO: ENUM
+        require(
+            installmentObject.installmentStatus == Status.StartedInstallment
+        ); // TODO: ENUM
 
         if (succeeded == true) {
-            installmentObject.installmentStatus = 2;
+            installmentObject.installmentStatus = Status
+                .EndedInstallmentSucceeded;
             // TODO: ERC721 NFT lock을 해제해주기
             installmentObject.isNFTLocked = false;
             _endInstallmentWithSuccess();
             return true;
         } else {
-            installmentObject.installmentStatus = 3;
+            installmentObject.installmentStatus = Status.EndedInstallmentFailed;
             installmentObject.isNFTLocked = false;
             _endInstallmentWithFailure();
             return true;
@@ -101,6 +109,13 @@ contract DivideNInstallment {
     function _endInstallmentWithFailure() private {
         // TODO: NFT를 seller에게 보내주고, 종료
     }
+
+    // 특정 계정이 보유한 ERC721 리스트 => front에서 하기
+    // 사람들이 판매 중인 NFT의 전체 리스트 (구매 가능 상태)
+    // 내 꺼 중 결제가 진행 중인 애들 리스트
+    // 1) 내가 사고 있는 애들 getter
+    // 2) 내가 팔고 있는 애들 getter
+    // 리스트에서 뭘 보여줘야 되냐면: 총 기간, 남은 기간, 월별 결제액, 초기 계약금, 할부 거래 Tx 주소 => front에서 하면 될거같은데?
 
     event InstallmentRegistered();
     event BeginInstallment();
