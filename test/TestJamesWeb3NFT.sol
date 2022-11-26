@@ -36,4 +36,14 @@ contract TestJamesWeb3NFT is Test {
         assertEq(JAMES_WEB3_NFT_WRAPPER.ownerOf(SAMPLE_TOKEN_ID, address(JAMES_WEB3_NFT_WRAPPER)), DEFAULT_EOA);
         assertEq(JAMES_WEB3_NFT.ownerOf(SAMPLE_TOKEN_ID), address(TEST_NFT_WRAPPER_FACET_ADDR));
     }
+
+    function testWithDrawLockedERC721() public {
+        // withdraw locked ERC721
+        vm.startPrank(DEFAULT_EOA, DEFAULT_EOA);
+        JAMES_WEB3_NFT_WRAPPER.withdraw(SAMPLE_TOKEN_ID, address(JAMES_WEB3_NFT));
+        vm.stopPrank();
+        // verify data
+        assertEq(JAMES_WEB3_NFT_WRAPPER.balanceOf(DEFAULT_EOA), 0);
+        assertEq(JAMES_WEB3_NFT.ownerOf(SAMPLE_TOKEN_ID), DEFAULT_EOA);
+    }
 }

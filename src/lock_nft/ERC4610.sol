@@ -356,6 +356,8 @@ contract ERC4610 is Context, ERC165, IERC4610, IERC721Metadata {
      * Emits a {Transfer} event.
      */
     function _burn(uint256 tokenId) internal virtual {
+        console.log("TOKEN ID", tokenId);
+        console.log("OWNER HEY~", ownerOf(tokenId));
         address owner = ownerOf(tokenId);
 
         _beforeTokenTransfer(owner, address(0), tokenId);

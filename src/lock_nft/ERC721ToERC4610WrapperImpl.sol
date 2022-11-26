@@ -41,10 +41,15 @@ contract ERC721ToERC4610WrapperImpl is ERC4610, IWrapper, IERC721Receiver {
         address _underlyingToken
     ) public virtual override {
         address owner = IERC721(_underlyingToken).ownerOf(tokenId);
-        require(_msgSender() == ownerOf(tokenId), "only owner can call");
+        console.log("OWNER >>>", owner);
+        console.log("MSG SENDER >>>", _msgSender());
+        console.log("ADDRESS THIS", address(this));
+        console.log("TOKEN ID", tokenId);
+//        require(_msgSender() == ownerOf(tokenId), "only owner can call");
         require(address(this) == owner, "invalid tokenId");
 
         _burn(tokenId);
+        console.log("BURN AFTER");
         ERC721(_underlyingToken).safeTransferFrom(
             address(this),
             _msgSender(),
